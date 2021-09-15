@@ -11,20 +11,19 @@ struct EmojiMemoryGameView: View {
     @ObservedObject var game: EmojiMemoryGame
     
     var body: some View {
-           // ScrollView {
-             //   LazyVGrid(columns:[GridItem(.adaptive(minimum: 65))]) {
-               //     ForEach(game.cards) { card in
-        AspectVGrid(items: game.cards, aspectRatio: 2/3, content: { card in
-            CardView(card: card)
-                .padding(4)
-                .onTapGesture {
-                    game.choose(card)
+        AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
+            if card.isMatched && !card.isFaceUp {
+                Rectangle().opacity(0)
+            }
+            
+            else {
+                CardView(card: card)
+                    .padding(4)
+                    .onTapGesture {
+                        game.choose(card)
                 }
-        })
-                    
-                 //   }
-               // }
-            //}
+            }
+        }
             .foregroundColor(/*@START_MENU_TOKEN@*/.red/*@END_MENU_TOKEN@*/)
             .padding(.horizontal)
     }
@@ -40,6 +39,8 @@ struct CardView: View {
                 if card.isFaceUp {
                     shape.fill().foregroundColor(.white)
                     shape.strokeBorder(lineWidth: DrawingConstants.lineWidth)
+                    Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110-90))
+                        .padding(5).opacity(0.5)
                     Text(card.content).font(font(in: geometry.size))
                     
                 }
@@ -62,7 +63,7 @@ struct CardView: View {
     private struct DrawingConstants {
         static let cornerRadius: CGFloat = 10
         static let lineWidth: CGFloat = 3
-        static let fontScale: CGFloat = 0.75
+        static let fontScale: CGFloat = 0.7
     }
 }
 
@@ -76,9 +77,7 @@ struct CardView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         let game = EmojiMemoryGame()
-        EmojiMemoryGameView(game: game)
-            .preferredColorScheme(.dark)
-        EmojiMemoryGameView(game: game)
-            .preferredColorScheme(.light)
+        game.choose(game.cards.first!)
+        return EmojiMemoryGameView(game: game)
     }
 }
